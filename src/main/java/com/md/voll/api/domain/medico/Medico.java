@@ -1,6 +1,6 @@
-package com.md.voll.api.medico;
+package com.md.voll.api.domain.medico;
 
-import com.md.voll.api.endereco.Endereco;
+import com.md.voll.api.domain.endereco.Endereco;
 
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;

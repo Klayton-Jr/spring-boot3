@@ -10,3 +10,6 @@ spring:
         properties:
             hibernate:
                 format-sql: true
+server:
+    error:
+        include-stacktrace: never
