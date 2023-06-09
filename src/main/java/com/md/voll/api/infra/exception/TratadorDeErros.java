@@ -12,6 +12,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.md.voll.api.domain.ValidacaoException;
+
 import jakarta.persistence.EntityNotFoundException;
 
 @RestControllerAdvice
@@ -46,6 +48,11 @@ public class TratadorDeErros {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> tratarErro500(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: " +ex.getLocalizedMessage());
+    }
+
+    @ExceptionHandler(ValidacaoException.class)
+    public ResponseEntity<String> tratarErroRegraDeNegocio(ValidacaoException exception) {
+        return ResponseEntity.badRequest().body(exception.getMessage());
     }
 
     private record DadosErroValidacao(String campo, String mensagem) {
