@@ -27,7 +27,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/medico")
+@RequestMapping("/medicos")
 @SecurityRequirement(name = "bearer-key")
 public class MedicoController {
 

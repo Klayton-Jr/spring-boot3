@@ -34,33 +34,85 @@ public class MedicoRepositoryTest {
 
     @Test
     @DisplayName("Deveria devolver null quando unico medico cadastrado nao esta disponivel na data")
-    void testEscolherMedicoAleatorioLivreNaData() {
+    void testEscolherMedicoAleatorioLivreNaDataCenario1() {
+        //given or arrange
         var proximaSegundaAsDez = LocalDate.now()
             .with(TemporalAdjusters.next(DayOfWeek.MONDAY))
             .atTime(10, 0);
-        var medicoLivre = medicoRepository.escolherMedicoAleatorioLivreNaData(EspecialidadeEnum.CARDIOLOGIA, proximaSegundaAsDez);
-
-        var medico = cadatrarMedico("medico", "medico@voll.med", "123456", "61999999999", EspecialidadeEnum.CARDIOLOGIA);
-        var paciente = cadastrarPaciente("paciente", "paciente@email.com", "61999999999", "00000000000");
+        
+        var medico = cadastrarMedico("medico", "medico@voll.med", "123456", EspecialidadeEnum.CARDIOLOGIA);
+        var paciente = cadastrarPaciente("paciente", "paciente@email.com", "00000000000");
         cadastrarConsulta(medico, paciente, proximaSegundaAsDez);
-
+        
+        //when or act
+        var medicoLivre = medicoRepository.escolherMedicoAleatorioLivreNaData(EspecialidadeEnum.CARDIOLOGIA, proximaSegundaAsDez);
+        
+        //then or assert
         assertThat(medicoLivre).isNull();
     }
 
-    private Medico cadatrarMedico(String nome, String email, String crm, String telefone, EspecialidadeEnum especialidade) {
-        return em.persist(new Medico(new DadosCadastroMedico(nome, email, telefone, crm, especialidade, dadosEndereco())));
-    }
+    @Test
+    @DisplayName("Deveria devolver medico ele estiver disponivel na data")
+    void testEscolherMedicoAleatorioLivreNaDataCenario2() {
+        var proximaSegundaAsDez = LocalDate.now()
+            .with(TemporalAdjusters.next(DayOfWeek.MONDAY))
+            .atTime(10, 0);
+        var test = medicoRepository.findAll();
+        
+        var medico = cadastrarMedico("medico", "medico@voll.med", "123456", EspecialidadeEnum.CARDIOLOGIA);
+        
+        var medicoLivre = medicoRepository.escolherMedicoAleatorioLivreNaData(EspecialidadeEnum.CARDIOLOGIA, proximaSegundaAsDez);
 
-    private Paciente cadastrarPaciente(String nome, String email, String telefone, String cpf) {
-        return em.persist(new Paciente(new DadosCadastroPaciente(nome, email, telefone, cpf, dadosEndereco())));
+        assertThat(medicoLivre).isEqualTo(medico);
     }
 
     private void cadastrarConsulta(Medico medico, Paciente paciente, LocalDateTime data) {
         em.persist(new Consulta(null, medico, paciente, data, null));
     }
-
+    
+    private Medico cadastrarMedico(String nome, String email, String crm, EspecialidadeEnum especialidade) {
+        var medico = new Medico(dadosMedico(nome, email, crm, especialidade));
+        em.persist(medico);
+        return medico;
+    }
+    
+    private Paciente cadastrarPaciente(String nome, String email, String cpf) {
+        var paciente = new Paciente(dadosPaciente(nome, email, cpf));
+        em.persist(paciente);
+        return paciente;
+    }
+    
+    private DadosCadastroMedico dadosMedico(String nome, String email, String crm, EspecialidadeEnum especialidade) {
+        return new DadosCadastroMedico(
+                nome,
+                email,
+                "61999999999",
+                crm,
+                especialidade,
+                dadosEndereco()
+        );
+    }
+    
+    private DadosCadastroPaciente dadosPaciente(String nome, String email, String cpf) {
+        return new DadosCadastroPaciente(
+                nome,
+                email,
+                "61999999999",
+                cpf,
+                dadosEndereco()
+        );
+    }
+    
     private DadosEndereco dadosEndereco() {
-        return new DadosEndereco("rua xpto", "bairro", "00000000", "cidade", "uf", null, null);
+        return new DadosEndereco(
+                "rua xpto",
+                "bairro",
+                "00000000",
+                "Brasilia",
+                "DF",
+                null,
+                null
+        );
     }
 
 }
